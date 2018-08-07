@@ -11,7 +11,9 @@ A Luxtronik heatpump runs a TCP server that servers the binary protocol on port 
 
 The binary protocol has 4 commands which are decribed in seperate files:
 
+- 3001 : Read Attribute, not implmented (at least in V3.79)
 - [3002](3002.md) : Writing parameters to the heatpump
 - [3003](3003.md) : Read parameters from the heatpump
 - [3004](3004.md) : Read calculations from the heatpump (measurement values, etc.)
 - [3005](3005.md) : Read visibilitys from  the heatpump (not clear at the Moment what the purpose of these is)
+- 3006 : Authenticate, not implmented (at least in V3.79)
