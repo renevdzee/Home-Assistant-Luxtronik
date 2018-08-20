@@ -21,7 +21,9 @@ The binary protocol has 4 commands which are decribed in seperate files:
 
 ## Usage
 
+**Disclaimer**
 This not meant to be the final repo for the Component / Platforms, just for others to test the custom_component.
+
 
 copy the `luxtronik.py` file , the `sensor` and the `binary_sensor` folders with their contents into your custom_components directors.
 
