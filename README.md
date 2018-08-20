@@ -17,3 +17,44 @@ The binary protocol has 4 commands which are decribed in seperate files:
 - [3004](3004.md) : Read calculations from the heatpump (measurement values, etc.)
 - [3005](3005.md) : Read visibilitys from  the heatpump (not clear at the Moment what the purpose of these is)
 - 3006 : Authenticate, not implmented (at least in V3.79)
+
+
+## Usage
+
+This not meant to be the final repo for the Component / Platforms, just for others to test the custom_component.
+
+copy the `luxtronik.py` file , the `sensor` and the `binary_sensor` folders with their contents into your custom_components directors.
+
+```
+├── binary_sensor
+│   └── luxtronik.py
+├── luxtronik.py
+└── sensor
+    └── luxtronik.py
+```
+
+Then configure the Component and the sensors/binary sensors like this example:
+
+```
+luxtronik:
+  host: "192.168.88.11"
+  port: 8889
+
+
+
+- platform: luxtronik
+  scan_interval: 60
+  sensors:
+    - 'ID_WEB_Temperatur_TVL'
+    - 'ID_WEB_Temperatur_TBW'
+
+
+
+- platform: luxtronik
+  scan_interval: 60
+  sensors:
+    - 'ID_WEB_VBOout'
+
+```
+
+You'll need to select the sensors by ID, look at the [data.txt](data.txt) file for reference.
