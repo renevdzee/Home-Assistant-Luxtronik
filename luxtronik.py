@@ -35,7 +35,7 @@ CONFIG_SCHEMA = vol.Schema({
 
 def setup(hass, config):
     """Set up the Luxtronik component."""
-    
+
     conf = config[DOMAIN]
 
     host = conf.get(CONF_HOST)
@@ -62,7 +62,7 @@ class LuxtronikData(object):
         self.data = None
 
     def valid_sensor_id(self, sensor_id):
-        """Validate if configured sensor ID is in data.""" 
+        """Validate if configured sensor ID is in data."""
         for category in self.data:
             for value in self.data[category]:
                 if self.data[category][value]['id'] == sensor_id:
@@ -73,4 +73,3 @@ class LuxtronikData(object):
     def update(self):
         """Use the data from Luxtronik."""
         self.data = self._luxtronik.get_data()
-
