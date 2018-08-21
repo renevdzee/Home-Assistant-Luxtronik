@@ -71,7 +71,6 @@ class LuxtronikData(object):
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
-        _LOGGER.error("Hub Update")
         """Use the data from Luxtronik."""
         self.data = self._luxtronik.get_data()
 
