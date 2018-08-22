@@ -10,7 +10,7 @@ import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 import homeassistant.helpers.config_validation as cv
-from custom_components.luxtronik import (CONF_SENSORS, DATA_LUXTRONIK, DOMAIN) 
+from custom_components.luxtronik import (CONF_SENSORS, DATA_LUXTRONIK, DOMAIN)
 from homeassistant.const import (TEMP_CELSIUS)
 from homeassistant.helpers.entity import Entity
 
@@ -22,6 +22,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_SENSORS): vol.All(cv.ensure_list, [cv.string]),
 })
 
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Luxtronik sensor."""
     lt = hass.data.get(DATA_LUXTRONIK)
@@ -29,14 +30,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         return False
 
     sensors = config.get(CONF_SENSORS)
-   
+
     entities = []
     for sensor in sensors:
         if lt.valid_sensor_id(sensor):
             entities.append(LuxtronikSensor(lt, sensor))
         else:
             _LOGGER.warning(f"Invalid Luxtronik ID {sensor}")
-    
+
     add_entities(entities, True)
 
 
@@ -63,21 +64,21 @@ class LuxtronikSensor(Entity):
         icons = {
             "celsius": "mdi:thermometer",
             "kelvin": "mdi:thermometer"
-            }
+        }
         return icons.get(self._data["unit"])
 
     @property
     def state(self):
-        """Return true if the UPS is online, else False."""
+        """Return true if the sensor is online, else False."""
         return self._state
 
     @property
     def device_class(self):
         """Return the class of this sensor."""
         device_classes = {
-            "celsius": "temperature",    
-            "kelvin": "temperature"    
-            }
+            "celsius": "temperature",
+            "kelvin": "temperature"
+        }
         return device_classes.get(self._data["unit"])
 
     @property
@@ -86,7 +87,7 @@ class LuxtronikSensor(Entity):
         units = {
             "celsius": TEMP_CELSIUS,
             "kelvin": "K"
-            }
+        }
         return units.get(self._data["unit"])
 
     def update(self):
@@ -99,4 +100,3 @@ class LuxtronikSensor(Entity):
                 if data[category][value]['id'] == self._sensor:
                     self._state = data[category][value]['value']
                     self._data = data[category][value]
-
