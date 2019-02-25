@@ -1,5 +1,7 @@
 """
+
 Support for Luxtronik heatpump controllers.
+
 For more details about this component, please refer to the documentation at
 https://home-assistant.io/components/luxtronik/
 """
@@ -12,7 +14,7 @@ from homeassistant.const import (CONF_HOST, CONF_PORT)
 from homeassistant.util import Throttle
 import homeassistant.helpers.config_validation as cv
 
-REQUIREMENTS = ['luxtronik==0.0.3']
+REQUIREMENTS = ['luxtronik==0.0.4']
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +37,6 @@ CONFIG_SCHEMA = vol.Schema({
 
 def setup(hass, config):
     """Set up the Luxtronik component."""
-
     conf = config[DOMAIN]
 
     host = conf.get(CONF_HOST)
