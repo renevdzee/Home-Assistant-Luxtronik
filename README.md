@@ -57,6 +57,9 @@ luxtronik:
   sensors:
     - 'ID_WEB_VBOout'
 
+
+climate:
+  - platform: luxtronik
 ```
 
 You'll need to select the sensors by ID, look at the [data.txt](data.txt) file for reference.
