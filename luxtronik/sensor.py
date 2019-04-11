@@ -91,9 +91,15 @@ class LuxtronikSensor(Entity):
         units = {
             "celsius": TEMP_CELSIUS,
             "kelvin": "K",
-            "bar": "bar"
+            "bar": "bar",
+            "seconds": "s",
+            "pulses": "pulses",
+            "percent": "%",
+            "rpm": "rpm",
+            "kWh": "kWh",
+            "volt": "V"
             }
-        return units.get(self._data["unit"], self._data["unit"])
+        return units.get(self._data["unit"], None)
 
     def update(self):
         """Get the latest status and use it to update our sensor state."""
