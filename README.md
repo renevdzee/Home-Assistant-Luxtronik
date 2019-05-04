@@ -37,26 +37,26 @@ copy the `luxtronik.py` file , the `sensor` and the `binary_sensor` folders with
 
 Then configure the Component and the sensors/binary sensors like this example:
 
+In configuration.yaml:
 ```
 luxtronik:
   host: "192.168.88.11"
   port: 8889
-
-
-
+```
+In sensors.yaml:
+```
 - platform: luxtronik
   scan_interval: 60
   sensors:
     - 'ID_WEB_Temperatur_TVL'
     - 'ID_WEB_Temperatur_TBW'
-
-
-
+```
+In binary_sensors.yaml:
+```
 - platform: luxtronik
   scan_interval: 60
   sensors:
     - 'ID_WEB_VBOout'
-
 ```
 
 You'll need to select the sensors by ID, look at the [data.txt](data.txt) file for reference.
