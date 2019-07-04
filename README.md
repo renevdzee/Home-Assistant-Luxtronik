@@ -39,15 +39,20 @@ In sensors.yaml:
 - platform: luxtronik
   scan_interval: 60
   sensors:
-    - 'ID_WEB_Temperatur_TVL'
-    - 'ID_WEB_Temperatur_TBW'
+    - id: ID_WEB_Temperatur_TVL
+      friendly_name: Temperatur Vorlauf
+    - id: ID_WEB_Temperatur_TBW
+      friendly_name: Temperatur Rücklauf
 ```
 In binary_sensors.yaml:
 ```
 - platform: luxtronik
   scan_interval: 60
   sensors:
-    - 'ID_WEB_VBOout'
+    - id: ID_WEB_VBOout
+      name: Brunnenwasserpumpe
 ```
+
+If a `friendly_name` is set, the entity added is named `luxtronik.temperatur_rucklauf` for example else the given `id`is used, `luxtronik.id_web_temperatur_tvl` for example.
 
 You'll need to select the sensors by ID, look at the [data.txt](data.txt) file for reference.

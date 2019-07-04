@@ -19,11 +19,16 @@ REQUIREMENTS = ['luxtronik==0.0.4']
 _LOGGER = logging.getLogger(__name__)
 
 CONF_SENSORS = 'sensors'
+CONF_ID = 'id'
+CONF_INVERT_STATE = 'invert'
+
 
 DATA_LUXTRONIK = 'DATA_LT'
 
 LUXTRONIK_PLATFORMS = ['switch', 'binary_sensor', 'sensor']
 DOMAIN = 'luxtronik'
+
+ENTITY_ID_FORMAT = DOMAIN + '.{}'
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=60)
 
