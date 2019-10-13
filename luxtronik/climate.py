@@ -16,7 +16,10 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import (ClimateDevice, PLATFORM_SCHEMA)
 from homeassistant.components.climate.const import (
-    STATE_HEAT, STATE_COOL, STATE_IDLE, SUPPORT_TARGET_TEMPERATURE, SUPPORT_OPERATION_MODE)
+    HVAC_MODE_AUTO, HVAC_MODE_HEAT, HVAC_MODE_COOL,
+    HVAC_MODE_HEAT_COOL, HVAC_MODE_OFF,
+    SUPPORT_TARGET_TEMPERATURE,
+    CURRENT_HVAC_HEAT, CURRENT_HVAC_COOL, CURRENT_HVAC_IDLE)
 from . import (
     DATA_LUXTRONIK, DOMAIN)
 from homeassistant.const import (TEMP_CELSIUS, ATTR_TEMPERATURE, PRECISION_TENTHS, PRECISION_HALVES)
@@ -46,7 +49,8 @@ class LuxtronicThermostat(ClimateDevice):
         self._current_temperature = None
         self._VD1 = 0
         self._TBW = None
-        self._state = STATE_IDLE
+        self._MODE = ""
+        self._state = HVAC_MODE_OFF
         self.update()
 
     @property
@@ -57,12 +61,12 @@ class LuxtronicThermostat(ClimateDevice):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_TARGET_TEMPERATURE | SUPPORT_OPERATION_MODE
+        return SUPPORT_TARGET_TEMPERATURE
 
     @property
-    def operation_list(self):
+    def hvac_modes(self):
         """List of available operation modes."""
-        return [STATE_HEAT, STATE_COOL, STATE_IDLE]
+        return [HVAC_MODE_HEAT, HVAC_MODE_HEAT_COOL, HVAC_MODE_OFF]
 
     @property
     def precision(self):
@@ -70,11 +74,24 @@ class LuxtronicThermostat(ClimateDevice):
         return PRECISION_TENTHS
 
     @property
-    def current_operation(self):
+    def hvac_mode(self):
         """Return current operation ie. heat, cool, idle."""
-        if self._state in [STATE_HEAT, STATE_COOL]:
+        if self._state in [HVAC_MODE_HEAT, HVAC_MODE_COOL, HVAC_MODE_HEAT_COOL]:
             return self._state
-        return STATE_IDLE
+        return HVAC_MODE_OFF
+
+    @property
+    def hvac_action(self):
+        """current HVAC action"""
+        #see https://github.com/Bouni/luxtronik/blob/master/luxtronik/lut.py (ID_WEB_WP_BZ_akt) for possible values
+        if self._MODE=="":
+            return CURRENT_HVAC_IDLE
+        elif self._MODE=="cooling":
+            return CURRENT_HVAC_COOL
+        elif self._MODE=="heating":
+            return CURRENT_HVAC_HEAT
+        else:
+            return CURRENT_HVAC_HEAT
 
     @property
     def name(self):
@@ -114,6 +131,10 @@ class LuxtronicThermostat(ClimateDevice):
         # todo ... self._luxtronic.set()?
         self._target_temperature = temperature
 
+    def set_hvac_mode(self, hvac_mode):
+        """Set hvac mode heat, heatcool, off """
+        # TODO
+
     def update(self):
         """Get the latest data."""
         self._luxtronik.update()
@@ -128,8 +149,14 @@ class LuxtronicThermostat(ClimateDevice):
                     self._VD1 = data[category][value]['value']
                 if data[category][value]['id'] == 'ID_WEB_Temperatur_TBW':
                     self._TBW = data[category][value]['value']
-        #todo, implement heating/cooling 
-        if bool(self._VD1):
-            self._state = STATE_HEAT
-        else:
-            self._state = STATE_IDLE
+                if data[category][value]['id'] == 'ID_WEB_WP_BZ_akt':
+                    self._MODE = data[category][value]['value']
+                if data[category][value]['id'] == 'ID_WEB_FreigabKuehl':
+                    if bool(data[category][value]['value']):
+                        self._state = HVAC_MODE_COOL
+                    else:
+                        self._state = HVAC_MODE_HEAT
+        # necessary? returns "no request" when idle?
+        if not bool(self._VD1):
+            self._MODE = ""
+
