@@ -65,10 +65,7 @@ class LuxtronikBinarySensor(BinarySensorDevice):
     @property
     def entity_id(self):
         """Return the entity_id of the sensor."""
-        if self._name:
-            return ENTITY_ID_FORMAT.format(slugify(self._name))
-        else:
-            return ENTITY_ID_FORMAT.format(slugify(self._sensor))
+        return ENTITY_ID_FORMAT.format(slugify(self._sensor))
 
     @property
     def icon(self):
