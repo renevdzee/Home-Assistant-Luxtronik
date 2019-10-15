@@ -127,7 +127,7 @@ class LuxtronicThermostat(ClimateDevice):
     def set_hvac_mode(self, hvac_mode):
         """Set hvac mode heat, heatcool, off """
         # TODO
-        #if hvac_mode == HVAC_MODE_COOL or hvac_mode == HVAC_MODE_HEAT_COOL:
+        #if hvac_mode == HVAC_MODE_HEAT_COOL:
         #    self._luxtronic.set('ID_Einst_BA_Kuehl_akt', 'Automatic')
         #else
         #    self._luxtronic.set('ID_Einst_BA_Kuehl_akt', 'Off')
@@ -150,6 +150,6 @@ class LuxtronicThermostat(ClimateDevice):
                     self._action = data[category][value]['value']
                 if data[category][value]['id'] == 'ID_WEB_FreigabKuehl':
                     if bool(data[category][value]['value']):
-                        self._mode = HVAC_MODE_COOL
+                        self._mode = HVAC_MODE_HEAT_COOL
                     else:
                         self._mode = HVAC_MODE_HEAT
