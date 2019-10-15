@@ -1,13 +1,10 @@
 """
-Support for monitoring the state of a Luxtronik heatpump.
+Support for controlling the state of a Luxtronik heatpump.
 
 For more details about this component, please refer to the documentation at
-https://home-assistant.io/components/sensor.luxtronik/
+https://home-assistant.io/components/luxtronik/
 
 climate component
-based on examples like
-https://gist.github.com/mvn23/af99067bceb4176d13073116019da8e1
-https://github.com/royduin/home-assistant-incomfort/blob/master/climate.py
 """
 import logging
 
@@ -20,8 +17,7 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_HEAT_COOL, HVAC_MODE_OFF,
     SUPPORT_TARGET_TEMPERATURE,
     CURRENT_HVAC_HEAT, CURRENT_HVAC_COOL, CURRENT_HVAC_IDLE)
-from . import (
-    DATA_LUXTRONIK, DOMAIN)
+from . import (DATA_LUXTRONIK)
 from homeassistant.const import (TEMP_CELSIUS, ATTR_TEMPERATURE, PRECISION_TENTHS, PRECISION_HALVES)
 from homeassistant.helpers.entity import Entity
 
@@ -49,14 +45,14 @@ class LuxtronicThermostat(ClimateDevice):
         self._current_temperature = None
         self._VD1 = 0
         self._TBW = None
-        self._MODE = ""
-        self._state = HVAC_MODE_OFF
+        self._action = ""
+        self._mode = HVAC_MODE_OFF
         self.update()
 
     @property
-    def state(self):
-        """Return the current state."""
-        return self._state
+    def name(self):
+        """Return the name of the thermostat, if any."""
+        return self._name
 
     @property
     def supported_features(self):
@@ -66,7 +62,13 @@ class LuxtronicThermostat(ClimateDevice):
     @property
     def hvac_modes(self):
         """List of available operation modes."""
+        # TODO: check if cooling is supported. ID_Visi_Kuhlung?
         return [HVAC_MODE_HEAT, HVAC_MODE_HEAT_COOL, HVAC_MODE_OFF]
+
+    @property
+    def temperature_unit(self):
+        """Return the unit of measurement which this thermostat uses."""
+        return TEMP_CELSIUS
 
     @property
     def precision(self):
@@ -75,37 +77,26 @@ class LuxtronicThermostat(ClimateDevice):
 
     @property
     def hvac_mode(self):
-        """Return current operation ie. heat, cool, idle."""
-        if self._state in [HVAC_MODE_HEAT, HVAC_MODE_COOL, HVAC_MODE_HEAT_COOL]:
-            return self._state
-        return HVAC_MODE_OFF
+        """Return the set mode."""
+        return self._mode
 
     @property
     def hvac_action(self):
-        """current HVAC action"""
-        #see https://github.com/Bouni/luxtronik/blob/master/luxtronik/lut.py (ID_WEB_WP_BZ_akt) for possible values
-        if self._MODE=="":
+        """Return the current action (idle, heat, cool) """
+        # see OperationMode in datatypes.py
+        # https://github.com/Bouni/luxtronik/blob/7ff13020ad528e6beac12115187be28da97c6881/luxtronik/datatypes.py#L358
+        if self._action=="no request":
             return CURRENT_HVAC_IDLE
-        elif self._MODE=="cooling":
+        elif self._action=="cooling":
             return CURRENT_HVAC_COOL
-        elif self._MODE=="heating":
+        elif self._action=="heating":
             return CURRENT_HVAC_HEAT
-        else:
+        else: # hotwater, pool etc.. also return heating
             return CURRENT_HVAC_HEAT
-
-    @property
-    def name(self):
-        """Return the name of the thermostat, if any."""
-        return self._name
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement which this thermostat uses."""
-        return TEMP_CELSIUS
 
     @property
     def current_temperature(self):
-        """Return the current temperature."""
+        """Return the current (room) temperature."""
         return self._current_temperature
 
     @property
@@ -128,12 +119,18 @@ class LuxtronicThermostat(ClimateDevice):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
-        # todo ... self._luxtronic.set()?
+        # TODO: which parameter for RBE target temperature?
+        #  cannot set ID_WEB_RBE_RT_Soll because it is a calculated value
+        # self._luxtronic.set(ID_x, temperature)
         self._target_temperature = temperature
 
     def set_hvac_mode(self, hvac_mode):
         """Set hvac mode heat, heatcool, off """
         # TODO
+        #if hvac_mode == HVAC_MODE_COOL or hvac_mode == HVAC_MODE_HEAT_COOL:
+        #    self._luxtronic.set('ID_Einst_BA_Kuehl_akt', 'Automatic')
+        #else
+        #    self._luxtronic.set('ID_Einst_BA_Kuehl_akt', 'Off')
 
     def update(self):
         """Get the latest data."""
@@ -150,13 +147,9 @@ class LuxtronicThermostat(ClimateDevice):
                 if data[category][value]['id'] == 'ID_WEB_Temperatur_TBW':
                     self._TBW = data[category][value]['value']
                 if data[category][value]['id'] == 'ID_WEB_WP_BZ_akt':
-                    self._MODE = data[category][value]['value']
+                    self._action = data[category][value]['value']
                 if data[category][value]['id'] == 'ID_WEB_FreigabKuehl':
                     if bool(data[category][value]['value']):
-                        self._state = HVAC_MODE_COOL
+                        self._mode = HVAC_MODE_COOL
                     else:
-                        self._state = HVAC_MODE_HEAT
-        # necessary? returns "no request" when idle?
-        if not bool(self._VD1):
-            self._MODE = ""
-
+                        self._mode = HVAC_MODE_HEAT
